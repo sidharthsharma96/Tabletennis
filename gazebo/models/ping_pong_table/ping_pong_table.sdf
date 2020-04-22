@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<sdf version="1.4">
+  <model name="ping_pong_table">
+    <pose>0 0 0  0 0 0</pose>
+    <static>true</static>
+    <link name="body">
+      <visual name='visual'>
+        <geometry>
+          <mesh>
+            <uri>file://models/ping_pong_table/meshes/table_with_net.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <pose frame=''>0 0 .7505 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.74101 1.525 0.020 0 0 0</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
