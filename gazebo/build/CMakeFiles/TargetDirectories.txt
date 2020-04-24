@@ -1,4 +1,0 @@
-/home/johnisking/WPI/final_project/gazebo/build/CMakeFiles/rebuild_cache.dir
-/home/johnisking/WPI/final_project/gazebo/build/CMakeFiles/edit_cache.dir
-/home/johnisking/WPI/final_project/gazebo/build/CMakeFiles/ball_rand_vel.dir
-/home/johnisking/WPI/final_project/gazebo/build/CMakeFiles/training_env_a.dir

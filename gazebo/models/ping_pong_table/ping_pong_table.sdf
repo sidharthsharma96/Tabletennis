@@ -15,7 +15,7 @@
         <pose frame=''>0 0 .7505 0 0 0</pose>
         <geometry>
           <box>
-            <size>2.74101 1.525 0.020 0 0 0</size>
+            <size>2.74101 1.525 0.020</size>
           </box>
         </geometry>
       </collision>
