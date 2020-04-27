@@ -12,28 +12,27 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-# Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS 
-  roscpp 
-  gazebo_ros 
-)
 
+find_package(roscpp REQUIRED)
+find_package(std_msgs REQUIRED)
+include_directories(${roscpp_INCLUDE_DIRS})
+include_directories(${std_msgs_INCLUDE_DIRS})
+
+# Find Gazebo
 find_package(gazebo REQUIRED)
 include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
-list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
-catkin_package(
-  DEPENDS 
-    roscpp 
-    gazebo_ros 
-)
-
+# Build our plugin
 add_library(ball_rand_vel SHARED ball_rand_vel.cc)
 target_link_libraries(ball_rand_vel ${GAZEBO_LIBRARIES})
 
 add_library(training_env_a SHARED training_env_a.cc)
 target_link_libraries(training_env_a ${GAZEBO_LIBRARIES})
+
+add_library(training_return_plugin SHARED training_return_plugin.cc)
+target_link_libraries(training_return_plugin ${GAZEBO_LIBRARIES})
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")

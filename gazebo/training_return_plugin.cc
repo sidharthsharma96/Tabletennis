@@ -3,7 +3,7 @@
 
 namespace gazebo
 {
-class TrainingReturnPlugin : public TrainingReturnPlugin
+class TrainingReturnPlugin : public WorldPlugin
 {
 public:
   TrainingReturnPlugin() : WorldPlugin()
