@@ -4,10 +4,10 @@
 #include "gazebo/gazebo.hh"
 
 #include <thread>
-//#include "ros/ros.h"
-//#include "ros/callback_queue.h"
-//#include "ros/subscribe_options.h"
-//#include "std_msgs/Float32.h"
+#include "ros/ros.h"
+#include "ros/callback_queue.h"
+#include "ros/subscribe_options.h"
+#include "std_msgs/Float32.h"
 
 namespace gazebo
 {

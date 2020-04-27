@@ -1,1 +1,3 @@
 gazebo/build/*.*
+ros/build/*.*
+ros/devel/*.*
