@@ -15,10 +15,11 @@
     </model>
 
     <model name="ping_pong_ball">
+      <pose>0.6 0 1.25  0 0 0</pose>
       <include>
         <uri>model://ping_pong_ball</uri>
       </include>
-      <plugin name="ball_rand_vel" filename="libball_rand_vel.so"/>
+      <plugin name="ball_plugin" filename="libball_plugin.so"/>
     </model>
   </world>
 </sdf>//

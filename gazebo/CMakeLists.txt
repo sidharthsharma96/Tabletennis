@@ -25,14 +25,14 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 # Build our plugin
-add_library(ball_rand_vel SHARED ball_rand_vel.cc)
-target_link_libraries(ball_rand_vel ${GAZEBO_LIBRARIES})
+add_library(ball_plugin SHARED plugins/ball_plugin.cc)
+target_link_libraries(ball_plugin ${GAZEBO_LIBRARIES})
 
-add_library(training_env_a SHARED training_env_a.cc)
-target_link_libraries(training_env_a ${GAZEBO_LIBRARIES})
-
-add_library(training_return_plugin SHARED training_return_plugin.cc)
+add_library(training_return_plugin SHARED plugins/training_return_plugin.cc)
 target_link_libraries(training_return_plugin ${GAZEBO_LIBRARIES})
 
+# Add executable test scripts
+add_executable(spawn_ball tests/spawn_ball.cc)
+target_link_libraries(spawn_ball ${GAZEBO_LIBRARIES})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")

@@ -1,0 +1,1 @@
+gazebo -u --verbose table_tennis.world

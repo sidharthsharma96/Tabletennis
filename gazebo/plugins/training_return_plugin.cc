@@ -1,9 +1,10 @@
-#include <ignition/math/Pose3.hh>
-#include <ignition/math/Rand.hh>
+#include <functional>
 #include <gazebo/gazebo.hh>
-#include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/physics/Model.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/transport/transport.hh>
+#include <gazebo/msgs/msgs.hh>
+#include <boost/shared_ptr.hpp>
 
 namespace gazebo
 {
@@ -41,19 +42,12 @@ public:
     // calculate reward
   }
 
-  ignition::math::Vector3d GetBallInfo()
+  void GetBallInfo()
   {
     // get current ball pose
 
     // get current ball velocity
     
-  }
-
-  void SpawnBall()
-  {
-    sdf::ElementPtr 
-    world->InsertModelFile("model://table_tennis_ball");
-    world->
   }
 
   private:

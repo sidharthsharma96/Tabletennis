@@ -1,7 +1,6 @@
 <?xml version='1.0'?>
 <sdf version="1.4">
   <model name="ping_pong_ball">
-    <pose>0.6 0 1.25  0 0 0</pose>
     <static>false</static>
     <link name="body">
       <visual name='visual'>
