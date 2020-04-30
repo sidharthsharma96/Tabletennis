@@ -125,6 +125,9 @@ public:
 
         // set random ball trajectory
         SetRandomTrajectory();
+
+        // set random ball destination
+        
     }
 
     void Step()
@@ -205,6 +208,7 @@ public:
         // Set ball state
         SetBallState(x0, y0, z0, vel.x, vel.y, vel.z);
 
+        /*
         std::string message = "Setting ball to p:{ " + 
             std::to_string(x0) + ", " +
             std::to_string(y0) + ", " +
@@ -216,10 +220,18 @@ public:
             std::to_string(yb) + ", " +
             std::to_string(zb) + "}";
         std::cout << message << '\n';
+        */
     }
     #pragma endregion
 
 private:
+    #pragma region Training
+    void ReportReward()
+    {
+        
+    }
+    #pragma endregion
+
     #pragma region Callbacks
     // Store ball state info when published
     void OnBallStateRetrieved(ConstPosePtr &msg)
@@ -351,8 +363,55 @@ private:
         
         return math::Vector3(vx, vy, vz);
     }
+
+    math::Vector3 GenerateRandomDestination(bool leftOrRight)
+    {
+        // Table size
+        const double length = 2.74101;
+        const double width = 1.525;
+
+        // Left side bounds
+        const double x_left_lower = -1*length / 2;
+        const double x_left_upper = -0.25;
+
+        // Right side bounds
+        const double x_right_lower = 0.25;
+        const double x_right_upper = 1*length / 2;
+
+        // y bounds
+        const double y_lower = -1*width/2;
+        const double y_upper = width/2;
+
+        // z bounds
+        const double z_table = 0.760;
+        const double z_lower = 1;
+        const double z_upper = 1.25;
+
+        // z velocity bounds
+        const double z_vel_lower = 0;
+        const double z_vel_upper = 3;
+
+        // Generate random bounce position
+        math::Vector3 destination;
+        if (leftOrRight)
+        {
+            double x = ignition::math::Rand::DblUniform(x_left_lower, x_left_upper);
+            double y = ignition::math::Rand::DblUniform(y_lower, y_upper);
+            double z = z_table;
+            destination = math::Vector3(x, y, z);
+        }
+        else
+        {
+            double x = ignition::math::Rand::DblUniform(x_right_lower, x_right_upper);
+            double y = ignition::math::Rand::DblUniform(y_lower, y_upper);
+            double z = z_table;
+            destination = math::Vector3(x, y, z);
+        }
+        return destination;
+    }
     #pragma endregion
 
+private:
     #pragma region State info
     // Ball state info
     ignition::math::Vector3d ballPosition;
