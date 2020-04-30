@@ -10,8 +10,15 @@
 
     <model name="ping_pong_table">
       <include>
-        <uri>model://ping_pong_table</uri>
+        <uri>model://ping_pong_table_no_net</uri>
       </include>
+    </model>
+
+    <model name="net">
+        <pose>0 0 .76 0 0 0 </pose>
+        <include>
+            <uri>model://ping_pong_table_net</uri>
+        </include>
     </model>
 
     <model name="ping_pong_ball">
@@ -21,5 +28,7 @@
       </include>
       <plugin name="ball_plugin" filename="libball_plugin.so"/>
     </model>
+
+    <plugin name="training_return_plugin" filename="libtraining_return_plugin.so"/>
   </world>
-</sdf>//
+</sdf>

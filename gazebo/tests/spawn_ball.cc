@@ -21,7 +21,7 @@ int main(int _argc, char **_argv)
 
     std::cout << "Advertising ball_state_cmd topic...\n";
 
-    // Publish to the  velodyne topic
+    // Publish to the velodyne topic
     gazebo::transport::PublisherPtr pub =
         node->Advertise<gazebo::msgs::Pose>("~/ping_pong_ball/ball_state_cmd");
 

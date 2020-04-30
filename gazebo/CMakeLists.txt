@@ -29,7 +29,7 @@ add_library(ball_plugin SHARED plugins/ball_plugin.cc)
 target_link_libraries(ball_plugin ${GAZEBO_LIBRARIES})
 
 add_library(training_return_plugin SHARED plugins/training_return_plugin.cc)
-target_link_libraries(training_return_plugin ${GAZEBO_LIBRARIES})
+target_link_libraries(training_return_plugin ${GAZEBO_LIBRARIES} ${roscpp_LIBRARIES})
 
 # Add executable test scripts
 add_executable(spawn_ball tests/spawn_ball.cc)
