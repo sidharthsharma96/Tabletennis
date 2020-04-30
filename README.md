@@ -2,13 +2,11 @@
 Table tennis playing robot using DQN
 
 # Building
-Building gazebo files
-- cd Tabletennis/gazebo
-- . activate
-- cd build
-- cmake ../
-- make
+- rosdep install --from-paths src --ignore-src -r -y
+- catkin build
 
-Building ros files
-- cd Tabletennis/ros
-- catkin_make
+# Source workspace
+- . activate
+
+# Launching world
+- roslaunch table_tennis table_tennis_world.launch
