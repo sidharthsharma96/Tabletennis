@@ -1,3 +1,0 @@
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-export GAZEBO_PLUGIN_PATH=$DIR/build:$GAZEBO_PLUGIN_PATH
-export GAZEBO_MODEL_PATH=$DIR/models:$GAZEBO_MODEL_PATH
