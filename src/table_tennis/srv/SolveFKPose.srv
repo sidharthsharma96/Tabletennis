@@ -1,0 +1,7 @@
+float64[] jointPositions
+---
+float64[] position
+float64[] rotx
+float64[] roty
+float64[] rotz
+int32 error
