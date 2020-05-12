@@ -1,0 +1,53 @@
+<?xml version='1.0'?>
+<sdf version="1.4">
+  <model name="ping_pong_racket">
+    <pose>0 0 0  0 0 0</pose>
+    <static>true</static>
+    
+    <link name="body">
+      <visual name='visual'>
+        <geometry>
+          <mesh>
+            <uri>model://ping_pong_racket/meshes/racket.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+
+      <collision name="racket_collision">
+        <pose frame=''>0 0 .17 1.5707 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.07</radius>
+            <length>.007</length>
+          </cylinder>
+        </geometry>
+        <surface>
+          <bounce>
+            <restitution_coefficient>1</restitution_coefficient>
+            <threshold>0</threshold>
+          </bounce>
+          <friction>
+            <ode>
+              <mu>0.01</mu>
+              <mu2>0.01</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <max_vel>1000</max_vel>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <sensor name="racket_contact" type="contact">
+        <contact>
+          <collision>racket_collision</collision>
+        </contact>
+      </sensor>
+
+    </link>
+
+  </model>
+
+</sdf>

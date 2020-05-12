@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<robot name="ping_pong_racket">
+
+  <link name="ping_pong_racket__body">
+    
+    <inertial>
+      <mass value="0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+
+    <collision name="ping_pong_racket__racket_collision">
+      <origin rpy="1.5707 0     0" xyz="0   0   0.17"/>
+      <geometry>
+        <cylinder length=".007" radius=".07"/>
+      </geometry>
+    </collision>
+
+    <visual name="ping_pong_racket__visual">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://PATHTOMESHES/meshes/racket.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+
+  </link>
+
+</robot>
