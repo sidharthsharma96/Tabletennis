@@ -120,9 +120,9 @@
       # VALUES ARE NOT CORRECT !
     gains:
       iiwa_joint_1: {p: 500,  d: 30, i: 15, i_clamp: 30}
-      iiwa_joint_2: {p: 200,  d: 10, i: 10, i_clamp: 30}
+      iiwa_joint_2: {p: 2000,  d: 10, i: 10, i_clamp: 30}
       iiwa_joint_3: {p: 65,  d: 10, i: 15, i_clamp: 30}
-      iiwa_joint_4: {p: 31,  d: 7, i: 12, i_clamp: 30}
+      iiwa_joint_4: {p: 200,  d: 7, i: 12, i_clamp: 30}
       iiwa_joint_5: {p: 23,  d: 3, i: 5, i_clamp: 30}
       iiwa_joint_6: {p: 13,  d: 3, i: 3, i_clamp: 30}
       iiwa_joint_7: {p: 17,  d: 2, i: 2.5, i_clamp: 10}

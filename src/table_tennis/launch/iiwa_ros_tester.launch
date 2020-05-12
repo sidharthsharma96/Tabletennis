@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="iiwa_ros_test" pkg="table_tennis" type="iiwa_ros_test.py" respawn="false" output="screen"/>
+</launch>

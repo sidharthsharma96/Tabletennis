@@ -1,1 +1,0 @@
-gazebo -u --verbose src/table_tennis/worlds/table_tennis.world

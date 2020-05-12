@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="ik_solver" pkg="table_tennis" type="ik_solver" respawn="false" output="screen"/>
+</launch>

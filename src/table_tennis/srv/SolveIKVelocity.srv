@@ -1,0 +1,6 @@
+float64[] initialState
+float64[] linear
+float64[] angular
+---
+float64[] solution
+int32 error

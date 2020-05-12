@@ -6,11 +6,16 @@
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
-    <arg name="hardware_interface" default="PositionJointInterface"/>
+    <arg name="hardware_interface" default="EffortJointInterface"/>
     <arg name="robot_name" default="iiwa" />
     <arg name="model" default="iiwa7"/>
     <arg name="trajectory" default="true"/>
     <arg name="rviz" default="false" />
+
+    <remap from="/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory" 
+           to="/$(arg robot_name)/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory" />
+    <remap from="robot_description" to="/$(arg robot_name)/robot_description" /> 
+    <remap from="/get_planning_scene" to="/$(arg robot_name)/get_planning_scene" /> 
 
     <!-- Load up table tennis world -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">	    
@@ -64,6 +69,12 @@
         </include>
         
     </group>
+
+    <!-- Start IK Solver node -->
+    <node name="ik_solver" pkg="table_tennis" type="ik_solver" respawn="false" output="screen"/>
+
+    <!-- Start Agent node-->
+    <!--include file="$(find table_tennis)/launch/agent.launch"/-->
 
     <!-- Load move_group -->
     <group ns="$(arg robot_name)">
