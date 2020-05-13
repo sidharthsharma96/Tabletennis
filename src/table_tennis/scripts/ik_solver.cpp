@@ -40,37 +40,37 @@ namespace table_tennis
         bool solveIKPose(table_tennis::SolveIKPoseRequest &req,
                          table_tennis::SolveIKPoseResponse &res)
         {
-            ROS_INFO("Solving IK Pose...");
+            ROS_DEBUG("Solving IK Pose...");
 
-            ROS_INFO("Initializing solver...");
+            ROS_DEBUG("Initializing solver...");
             KDL::ChainIkSolverPos_LMA posSolver(this->chain);
             std::vector<double> initialstate = req.initialState;
 
             KDL::JntArray jntArray = KDL::JntArray(7);
             jntArray.data = Eigen::Map<const Eigen::VectorXd>(initialstate.data(), initialstate.size());
 
-            ROS_INFO("Parsing rotation...");
+            ROS_DEBUG("Parsing rotation...");
             KDL::Vector rotx = KDL::Vector(req.rotx[0], req.rotx[1], req.rotx[2]);
             KDL::Vector roty = KDL::Vector(req.roty[0], req.roty[1], req.roty[2]);
             KDL::Vector rotz = KDL::Vector(req.rotz[0], req.rotz[1], req.rotz[2]);
 
-            ROS_INFO("Parsing posiion...");
+            ROS_DEBUG("Parsing posiion...");
             KDL::Vector targetpos = KDL::Vector(req.x, req.y, req.z);
             KDL::Rotation targetrot = KDL::Rotation(rotx, roty, rotz);
 
-            ROS_INFO("Generating goal...");
+            ROS_DEBUG("Generating goal...");
             KDL::Frame targetFrame = KDL::Frame(targetrot, targetpos);
 
             KDL::JntArray jntSol = KDL::JntArray(7);
-            ROS_INFO("[%f, %f, %f]; [[%f, %f, %f], [%f, %f, %f], [%f, %f, %f]]",
+            ROS_DEBUG("[%f, %f, %f]; [[%f, %f, %f], [%f, %f, %f], [%f, %f, %f]]",
                         targetpos.data[0], targetpos.data[1], targetpos.data[2],
                         rotx.data[0], roty.data[0], rotz.data[0],
                         rotx.data[1], roty.data[1], rotz.data[1],
                         rotx.data[2], roty.data[2], rotz.data[2]);
 
-            ROS_INFO("Running solver...");
+            ROS_DEBUG("Running solver...");
             int result = posSolver.CartToJnt(jntArray, targetFrame, jntSol);
-            ROS_INFO("Result: %d", result);
+            ROS_DEBUG("Result: %d", result);
 
             for (int i = 0; i < jntSol.rows() * jntSol.columns(); i++)
             {
@@ -88,7 +88,7 @@ namespace table_tennis
         bool solveIKVel(table_tennis::SolveIKVelocityRequest &req,
                         table_tennis::SolveIKVelocityResponse &res)
         {
-            ROS_INFO("Solving IK Velocity...");
+            ROS_DEBUG("Solving IK Velocity...");
             KDL::ChainIkSolverVel_pinv velSolver(this->chain);
             std::vector<double> initialstate = req.initialState;
 
@@ -102,8 +102,7 @@ namespace table_tennis
             KDL::JntArray jntSol = KDL::JntArray(7);
 
             int result = velSolver.CartToJnt(jntArray, targetTwist, jntSol);
-            ;
-            ROS_INFO("Result: %d", result);
+            ROS_DEBUG("Result: %d", result);
 
             for (int i = 0; i < jntSol.rows() * jntSol.columns(); i++)
             {
@@ -121,14 +120,14 @@ namespace table_tennis
         bool solveFKPose(table_tennis::SolveFKPoseRequest &req,
                          table_tennis::SolveFKPoseResponse &res)
         {
-            ROS_INFO("FK Pose request received.");
+            ROS_DEBUG("FK Pose request received.");
             KDL::ChainFkSolverPos_recursive posSolver(this->chain);
 
-            ROS_INFO("Joint positions:");
+            ROS_DEBUG("Joint positions:");
             std::vector<double> jointPositions = req.jointPositions;
             for (int i = 0; i < jointPositions.size(); ++i)
             {
-                ROS_INFO("  %f", jointPositions[i]);
+                ROS_DEBUG("  %f", jointPositions[i]);
             }
 
             KDL::JntArray jntArray = KDL::JntArray(7);
@@ -168,10 +167,10 @@ namespace table_tennis
             res.roty = roty;
             res.rotz = rotz;
 
-            ROS_INFO("Solved position: {%f, %f, %f}", position[0], position[1], position[2]);
-            ROS_INFO("Solved rotx: {%f, %f, %f}", rotx[0], rotx[1], rotx[2]);
-            ROS_INFO("Solved roty: {%f, %f, %f}", roty[0], roty[1], roty[2]);
-            ROS_INFO("Solved rotz: {%f, %f, %f}", rotz[0], rotz[1], rotz[2]);
+            ROS_DEBUG("Solved position: {%f, %f, %f}", position[0], position[1], position[2]);
+            ROS_DEBUG("Solved rotx: {%f, %f, %f}", rotx[0], rotx[1], rotx[2]);
+            ROS_DEBUG("Solved roty: {%f, %f, %f}", roty[0], roty[1], roty[2]);
+            ROS_DEBUG("Solved rotz: {%f, %f, %f}", rotz[0], rotz[1], rotz[2]);
 
             return true;
         }

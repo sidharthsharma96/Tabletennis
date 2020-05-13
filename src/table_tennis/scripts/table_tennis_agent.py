@@ -124,16 +124,16 @@ class TableTennisAgent():
             xd = state[3]
             yd = state[4]
             zd = state[5]
-            rospy.loginfo("World state: " + str(state))
+            rospy.logdebug("World state: " + str(state))
 
             # Calculate ball receive state
-            rospy.loginfo("Calculating receive state...")
+            rospy.logdebug("Calculating receive state...")
             (x, y, z, vx, vy, vz, t) = self.calcBallReceiveState(state)
             z = z + 0.05 # adjustment
             #y = y + 0.05 # adjustment
-            rospy.loginfo("Ball receive position: (%f, %f, %f)" % (x, y, z))
-            rospy.loginfo("Ball receive velocity: (%f, %f, %f)" % (vx, vy, vz))
-            rospy.loginfo("Ball receive time: %f" % t)
+            rospy.logdebug("Ball receive position: (%f, %f, %f)" % (x, y, z))
+            rospy.logdebug("Ball receive velocity: (%f, %f, %f)" % (vx, vy, vz))
+            rospy.logdebug("Ball receive time: %f" % t)
 
             # Choose paddle orientation and velocity
             rospy.loginfo("Requesting action from dqn..")
@@ -160,7 +160,7 @@ class TableTennisAgent():
             p2 = np.matrix([[x], [y], [z]]) + rot * \
                 velmat/np.linalg.norm(velmat)*d - self.robotOrigin
             
-            rospy.loginfo("Return Position relative to robot: " + str(p1))
+            rospy.logdebug("Return Position relative to robot: " + str(p1))
 
             # Check if robot can reach without colliding with table
             if (z <= 1):
@@ -169,19 +169,19 @@ class TableTennisAgent():
 
             # Calculate trajectory
             rospy.loginfo("Calculating trajectory...")
-            rospy.loginfo("Performing IK on: " + str(p0) + ", " + str(rot))
+            rospy.logdebug("Performing IK on: " + str(p0) + ", " + str(rot))
             point1 = self.getTargetPoint(p0, rot)
-            rospy.loginfo("Performing IK on: " + str(p1) + ", " + str(rot) + ", " + str(pvel))
+            rospy.logdebug("Performing IK on: " + str(p1) + ", " + str(rot) + ", " + str(pvel))
             point2 = self.getTargetPoint(p1, rot, velmat)
-            rospy.loginfo("Performing IK on: " + str(p2) + ", " + str(rot))
+            rospy.logdebug("Performing IK on: " + str(p2) + ", " + str(rot))
             point3 = self.getTargetPoint(p2, rot)
             if (point1 is None or point2 is None or point3 is None):
                 rospy.loginfo("Failed to calculate trajectory.")
                 return CommandAgentResponse(False)
 
-            rospy.loginfo("Points are valid.")
+            rospy.logdebug("Points are valid.")
             prepTime = self.estimateTime(self.getCurrentPoint(), point1)
-            rospy.loginfo("Prep time: " + str(prepTime))
+            rospy.logdebug("Prep time: " + str(prepTime))
 
             if (prepTime > t):
                 prepTime = t - 0.25

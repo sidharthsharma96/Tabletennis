@@ -170,8 +170,8 @@ namespace gazebo
             ROS_INFO("Stepping world...");
 
             // Unpause world
-            ROS_INFO("Unpausing...");
-            world->SetPaused(false);
+            //ROS_INFO("Unpausing...");
+            //world->SetPaused(false);
 
             // Set random ball trajectory
             SetRandomTrajectory();
@@ -338,7 +338,7 @@ namespace gazebo
             double vz = ignition::math::Rand::DblUniform(0.25, 1.5);
             math::Vector3 vel = GenerateTrajectory(x0, y0, z0, xb, yb, zb, vz);
 
-            ROS_INFO(
+            ROS_DEBUG(
                 "Setting ball to p:{%f, %f, %f} v:{%f, %f, %f}, targeting:b: { %f, %f, %f } ",
                 x0, y0, z0, vel.x, vel.y, vel.z, xb, yb, zb);
 
@@ -357,11 +357,6 @@ namespace gazebo
 #pragma endregion
 
     private:
-#pragma region Training
-        void ReportReward()
-        {
-        }
-#pragma endregion
 
 #pragma region Callbacks
         // Store ball state info when published
