@@ -35,6 +35,7 @@ add_service_files(
     ResetWorld.srv
     StepWorld.srv
     GetWorldState.srv
+    Demo.srv
 )
 
 generate_messages()

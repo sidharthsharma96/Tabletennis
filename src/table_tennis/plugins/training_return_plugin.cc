@@ -17,6 +17,7 @@
 #include "table_tennis/ResetWorld.h"
 #include "table_tennis/StepWorld.h"
 #include "table_tennis/GetWorldState.h"
+#include "table_tennis/Demo.h"
 
 namespace gazebo
 {
@@ -100,7 +101,12 @@ namespace gazebo
 
             // Create agent command service client
             this->agentCommandServiceClient =
-                rosNode->serviceClient<table_tennis::CommandAgent>("table_tennis/agent/command");
+                rosNode->serviceClient<table_tennis::CommandAgent>("/table_tennis/agent/command");
+
+            // Create demo service
+            this->demoService = this->rosNode->advertiseService("/table_tennis/demo",
+                                                                &TrainingReturnPlugin::Demo,
+                                                                this);
 
             this->ballPosition = ignition::math::Vector3d();
             this->ballVelocity = ignition::math::Vector3d();
@@ -116,28 +122,41 @@ namespace gazebo
         bool Reset(table_tennis::ResetWorldRequest &req,
                    table_tennis::ResetWorldResponse &res)
         {
+            // Move Robot to ready position
+            ROS_INFO("Moving robot to ready...");
+            table_tennis::CommandAgent command;
+            command.request.command = "ready";
+            command.request.data = std::vector<double>{1};
+            this->agentCommandServiceClient.call(command);
+
+            if (!command.response.success)
+            {
+                ROS_INFO("Could not move robot to ready position.");
+                return false;
+            }
+
             // Reset and pause world
             //world->Reset();
-            world->SetPaused(true);
+            // world->SetPaused(true);
 
-            // Set random ball trajectory
-            SetRandomTrajectory();
+            // // Set random ball trajectory
+            // SetRandomTrajectory();
 
-            // Set random ball destination
-            // SetBallDestination();
-            this->SetBallState(1.0, -0.25, 1.5, -3.0, 0.0, 0.25);
+            // // Set random ball destination
+            //  SetBallDestination();
+            // //this->SetBallState(1.0, -0.25, 1.5, -3.0, 0.0, 0.25);
 
-            // Build state
-            std::vector<double> state{
-                this->ballInitialPosition.X(),
-                this->ballInitialPosition.Y(),
-                this->ballInitialPosition.Z(),
-                this->ballDestination.X(),
-                this->ballDestination.Y(),
-                this->ballDestination.Z(),
-                this->ballInitialVelocity.X(),
-                this->ballInitialVelocity.Y(),
-                this->ballInitialVelocity.Z()};
+            // // Build state
+            // std::vector<double> state{
+            //     this->ballInitialPosition.X(),
+            //     this->ballInitialPosition.Y(),
+            //     this->ballInitialPosition.Z(),
+            //     this->ballDestination.X(),
+            //     this->ballDestination.Y(),
+            //     this->ballDestination.Z(),
+            //     this->ballInitialVelocity.X(),
+            //     this->ballInitialVelocity.Y(),
+            //     this->ballInitialVelocity.Z()};
 
             this->state = state;
             res.state = state;
@@ -154,16 +173,39 @@ namespace gazebo
             ROS_INFO("Unpausing...");
             world->SetPaused(false);
 
+            // Set random ball trajectory
+            SetRandomTrajectory();
+            //this->SetBallState(1.0, -0.25, 1.5, -3.0, 0.0, 0.25);
+
+            // Set random ball destination
+            SetBallDestination();
+
+            // Build state
+            std::vector<double> state{
+                this->ballInitialPosition.X(),
+                this->ballInitialPosition.Y(),
+                this->ballInitialPosition.Z(),
+                this->ballDestination.X(),
+                this->ballDestination.Y(),
+                this->ballDestination.Z(),
+                this->ballInitialVelocity.X(),
+                this->ballInitialVelocity.Y(),
+                this->ballInitialVelocity.Z()};
+
+            this->state = state;
+
             // Control robot
             ROS_INFO("Sending control command to agent...");
             table_tennis::CommandAgent command;
             command.request.command = "receive";
-            command.request.data = std::vector<double> { 1 };
+            command.request.data = std::vector<double>{1};
             this->agentCommandServiceClient.call(command);
 
             if (!command.response.success)
+            {
                 ROS_INFO("Control command failed.");
                 return false;
+            }
 
             ROS_INFO("Control command success!");
 
@@ -224,6 +266,34 @@ namespace gazebo
             res.state = state;
             return true;
         }
+
+        bool Demo(table_tennis::DemoRequest &req,
+                  table_tennis::DemoResponse &res)
+        {
+            // Set ball trajectory
+            int steps = 10;
+            if (req.data.size() > 0)
+            {
+                steps = req.data[0];
+            }
+            ROS_INFO("Starting demo...");
+            ROS_INFO("Running fo %d steps.", steps);
+
+            table_tennis::ResetWorldRequest resetreq;
+            table_tennis::ResetWorldResponse resetres;
+            table_tennis::StepWorldRequest stepreq;
+            table_tennis::StepWorldResponse stepres;
+            
+            for (int i = 0; i < steps; ++i)
+            {
+                ROS_INFO("Step %d.", i);
+                this->Reset(resetreq, resetres);
+                this->Step(stepreq, stepres);
+            }
+
+            ROS_INFO("Done.");
+            res.success = true;
+        }
 #pragma endregion
 
 #pragma region Ball Control
@@ -255,17 +325,17 @@ namespace gazebo
         void SetRandomTrajectory()
         {
             // Generate random bounce position
-            double xb = ignition::math::Rand::DblUniform(x_left_lower, x_left_upper);
-            double yb = ignition::math::Rand::DblUniform(y_lower + 0.1, y_upper - 0.1);
+            double xb = ignition::math::Rand::DblUniform(-0.6, -0.8);
+            double yb = ignition::math::Rand::DblUniform(-0.2, 0.05);
             double zb = z_table;
 
             // Generate random starting position
-            double x0 = ignition::math::Rand::DblUniform(x_right_lower, x_right_upper);
-            double y0 = ignition::math::Rand::DblUniform(y_lower + 0.1, y_upper - 0.1);
+            double x0 = ignition::math::Rand::DblUniform(0.55, 0.85);
+            double y0 = ignition::math::Rand::DblUniform(0, 0.25);
             double z0 = ignition::math::Rand::DblUniform(z_lower, z_upper);
 
             // Generate velocity
-            double vz = ignition::math::Rand::DblUniform(z_vel_lower, z_vel_upper);
+            double vz = ignition::math::Rand::DblUniform(0.25, 1.5);
             math::Vector3 vel = GenerateTrajectory(x0, y0, z0, xb, yb, zb, vz);
 
             ROS_INFO(
@@ -445,8 +515,8 @@ namespace gazebo
 
         // z bounds
         const double z_table = 0.760;
-        const double z_lower = 1.5;
-        const double z_upper = 1.8;
+        const double z_lower = 1.4;
+        const double z_upper = 1.6;
 
         // z velocity bounds
         const double z_vel_lower = 0;
@@ -516,6 +586,7 @@ namespace gazebo
         ros::ServiceServer resetWorldService;
         ros::ServiceServer stepWorldService;
         ros::ServiceServer getWorldStateService;
+        ros::ServiceServer demoService;
         ros::ServiceClient agentCommandServiceClient;
 #pragma endregion
     };

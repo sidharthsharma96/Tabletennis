@@ -97,7 +97,7 @@ class TableTennisAgent():
             3.14
         ]
 
-        self.robotOrigin = np.array([[-1.5], [0], [0.84]])
+        self.robotOrigin = np.array([[-1.5], [0], [0.5]])
         self.robotReach = 0.7
         self.robotState = 0
         self.jointState = JointState()
@@ -129,6 +129,8 @@ class TableTennisAgent():
             # Calculate ball receive state
             rospy.loginfo("Calculating receive state...")
             (x, y, z, vx, vy, vz, t) = self.calcBallReceiveState(state)
+            z = z + 0.05 # adjustment
+            #y = y + 0.05 # adjustment
             rospy.loginfo("Ball receive position: (%f, %f, %f)" % (x, y, z))
             rospy.loginfo("Ball receive velocity: (%f, %f, %f)" % (vx, vy, vz))
             rospy.loginfo("Ball receive time: %f" % t)
@@ -142,18 +144,23 @@ class TableTennisAgent():
             pvel = output[:3].cpu().data.numpy()
             angles = output[3:].cpu().data.numpy()
             rospy.loginfo("Action: (" + str(pvel) + "), (" + str(angles) + ")")
+            pvel = [1,0,0.2]
 
             # Calculate required positions and velocities
             d = 0.05
-            rot = self.anglesToRot(angles)
+            #rot = self.anglesToRot(angles)
+
+            rot = np.matrix([[0,1,0], [0,0,-1], [-1,0,0]])
+
+
             velmat = np.matrix(np.resize(pvel, (3,1)))
-            p0 = np.matrix([[x], [y], [z]]) + rot * \
+            p0 = np.matrix([[x], [y], [z]]) - rot * \
                 velmat/np.linalg.norm(velmat)*d - self.robotOrigin
             p1 = np.matrix([[x], [y], [z]]) - self.robotOrigin
-            p2 = np.matrix([[x], [y], [z]]) - rot * \
+            p2 = np.matrix([[x], [y], [z]]) + rot * \
                 velmat/np.linalg.norm(velmat)*d - self.robotOrigin
             
-            rospy.loginfo("Return Position relative to robot: " + str(p0))
+            rospy.loginfo("Return Position relative to robot: " + str(p1))
 
             # Check if robot can reach without colliding with table
             if (z <= 1):
@@ -165,7 +172,7 @@ class TableTennisAgent():
             rospy.loginfo("Performing IK on: " + str(p0) + ", " + str(rot))
             point1 = self.getTargetPoint(p0, rot)
             rospy.loginfo("Performing IK on: " + str(p1) + ", " + str(rot) + ", " + str(pvel))
-            point2 = self.getTargetPoint(p1, rot, pvel)
+            point2 = self.getTargetPoint(p1, rot, velmat)
             rospy.loginfo("Performing IK on: " + str(p2) + ", " + str(rot))
             point3 = self.getTargetPoint(p2, rot)
             if (point1 is None or point2 is None or point3 is None):
@@ -174,21 +181,71 @@ class TableTennisAgent():
 
             rospy.loginfo("Points are valid.")
             prepTime = self.estimateTime(self.getCurrentPoint(), point1)
+            rospy.loginfo("Prep time: " + str(prepTime))
 
             if (prepTime > t):
                 prepTime = t - 0.25
 
-            point1.time_from_start = rospy.Duration(prepTime)
-            point2.time_from_start = rospy.Duration(t)
+            point1.time_from_start = rospy.Duration(t - 0.25)
+            point2.time_from_start = rospy.Duration(t - 0.1)
             point3.time_from_start = rospy.Duration(t + 0.5)
 
             # Perform trajectory
             rospy.loginfo("Performing trajectory...")
-            self.runTrajectory([point1, point2, point3])
+            success = self.runTrajectory([point1, point2, point3])
+
+            if (success):
+                rospy.loginfo("Trajectory complete.")
+            else:
+                rospy.loginfo("Trajectory failed.")
 
             self.robotState = 0
 
             return CommandAgentResponse(True)
+
+        elif (req.command == "ready"):
+            rospy.loginfo("Moving to ready position.")
+            success = self.ready()
+
+            if (success):
+                rospy.loginfo("Trajectory successful.")
+            else:
+                rospy.loginfo("Trajectory failed.")
+                return CommandAgentResponse(False)   
+
+            return CommandAgentResponse(True)   
+
+
+        elif (req.command == "demo"):
+            rospy.loginfo("Starting demo trajectory...")
+            p0 = np.matrix([[0.3], [-0.3], [0.9]])
+            p1 = np.matrix([[0.325], [-0.3], [0.9]])
+            p2 = np.matrix([[0.35], [-0.3], [0.9]])
+
+            rot = np.matrix([[0,1,0], [0,0,-1], [-1,0,0]])
+            pvel = [1, 0, 0]
+
+            point1 = self.getTargetPoint(p0, rot)
+            point2 = self.getTargetPoint(p1, rot, pvel)
+            point3 = self.getTargetPoint(p2, rot)
+
+            if (point1 is None or point2 is None or point3 is None):
+                rospy.loginfo("Failed to calculate trajectory.")
+                return CommandAgentResponse(False)
+
+            point1.time_from_start = rospy.Duration(0.3)
+            point2.time_from_start = rospy.Duration(0.5)
+            point3.time_from_start = rospy.Duration(0.75)
+
+            success = self.runTrajectory([point1, point2, point3])
+
+            if (success):
+                rospy.loginfo("Trajectory successful.")
+            else:
+                rospy.loginfo("Trajectory failed.")
+                return CommandAgentResponse(False)   
+
+            return CommandAgentResponse(True)            
 
         rospy.loginfo("Invalid command.")
 
@@ -210,8 +267,10 @@ class TableTennisAgent():
         trajectory.points = points
 
         goal = FollowJointTrajectoryGoal(trajectory=trajectory)
+        goal.goal_time_tolerance = rospy.Duration(0.02)
 
-        self.client.send_goal_and_wait(goal)
+        result = self.client.send_goal_and_wait(goal)
+        return result
 
     def home(self):
         home = self.getHomePoint()
@@ -220,7 +279,24 @@ class TableTennisAgent():
         time = self.estimateTime(home, current, 1.5)
         home.time_from_start = rospy.Duration(time)
 
-        self.runTrajectory([home])
+        return self.runTrajectory([home])
+
+    def ready(self):
+        rospy.loginfo("Moving to ready position.")
+        p = np.matrix([[0.3], [-0.3], [0.9]])
+        rot = np.matrix([[0,1,0], [0,0,-1], [-1,0,0]])
+
+        current = self.getCurrentPoint()
+        point = self.getTargetPoint(p, rot)
+
+        if (point is None):
+            rospy.loginfo("Failed to calculate ready position.")
+            return False
+
+        time = self.estimateTime(current, point, 1.25)
+        point.time_from_start = rospy.Duration(time)
+
+        return self.runTrajectory([point])
 
     def getHomePoint(self):
         home = JointTrajectoryPoint()
@@ -270,17 +346,21 @@ class TableTennisAgent():
 
             r = math.sqrt((x - xr)**2 + (y - yr)**2 + (z - zr)**2)
 
+            t += dt
+
             if (z <= table and not bounce):
                 vz = -1*vz*Kr
                 vzb = vz
                 tb = 0
                 bounce = True
-            elif (r <= self.robotReach):
+            #elif (r <= self.robotReach):
+            #    break
+            elif (x <= self.robotOrigin[0] + 0.325):
                 break
             elif (z <= table - 0.1 and bounce):
                 break
 
-            t += dt
+            
 
         return (x, y, z, vx0, vy0, vz, t)
 

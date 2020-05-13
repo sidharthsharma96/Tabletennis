@@ -17,7 +17,7 @@ namespace table_tennis
             this->node = node;
 
             KDL::Chain chain;
-            tree.getChain("iiwa_link_0", "tool_link_ee", chain);
+            tree.getChain("iiwa_link_0", "TCP", chain);
             this->chain = chain;
 
             ROS_INFO("Initializing IKPoseSolver service...");
@@ -74,7 +74,7 @@ namespace table_tennis
 
             for (int i = 0; i < jntSol.rows() * jntSol.columns(); i++)
             {
-                ROS_INFO("%f", jntSol.data[i]);
+                ROS_DEBUG("%f", jntSol.data[i]);
             }
 
             std::vector<double> sol(jntSol.data.data(), jntSol.data.data() + jntSol.data.rows() * jntSol.data.cols());
@@ -107,7 +107,7 @@ namespace table_tennis
 
             for (int i = 0; i < jntSol.rows() * jntSol.columns(); i++)
             {
-                ROS_INFO("%f", jntSol.data[i]);
+                ROS_DEBUG("%f", jntSol.data[i]);
             }
 
             std::vector<double> sol(jntSol.data.data(), jntSol.data.data() + jntSol.data.rows() * jntSol.data.cols());
