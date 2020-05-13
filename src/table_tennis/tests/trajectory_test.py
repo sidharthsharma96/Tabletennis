@@ -43,9 +43,9 @@ def main():
                                 JointState,
                                 jointStateCallback)
 
-    dx = 0.05
+    dx = 0.0
     dy = 0.0
-    dz = -0.05
+    dz = 0.0
 
     # parse params
     if rospy.has_param("~dx"):

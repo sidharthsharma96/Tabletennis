@@ -31,6 +31,7 @@ add_service_files(
     CommandAgent.srv
     SolveIKPose.srv
     SolveIKVelocity.srv
+    SolveFKPose.srv
     ResetWorld.srv
     StepWorld.srv
     GetWorldState.srv

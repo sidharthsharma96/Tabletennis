@@ -124,7 +124,8 @@ namespace gazebo
             SetRandomTrajectory();
 
             // Set random ball destination
-            SetBallDestination();
+            // SetBallDestination();
+            this->SetBallState(1.0, -0.25, 1.5, -3.0, 0.0, 0.25);
 
             // Build state
             std::vector<double> state{

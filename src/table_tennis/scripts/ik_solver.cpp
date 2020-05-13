@@ -1,36 +1,44 @@
 #include <ros/ros.h>
 #include "kdl/chainiksolverpos_lma.hpp"
 #include "kdl/chainiksolvervel_pinv.hpp"
+#include "kdl/chainfksolverpos_recursive.hpp"
 #include "kdl_parser/kdl_parser.hpp"
 #include "table_tennis/SolveIKPose.h"
 #include "table_tennis/SolveIKVelocity.h"
+#include "table_tennis/SolveFKPose.h"
 
 namespace table_tennis
 {
-class IKSolver
-{
-public:
-    IKSolver(ros::NodeHandle* node, KDL::Tree tree)
+    class IKSolver
     {
-        this->node = node;
+    public:
+        IKSolver(ros::NodeHandle *node, KDL::Tree tree)
+        {
+            this->node = node;
 
-        KDL::Chain chain;
-        tree.getChain("iiwa_link_0", "iiwa_link_ee", chain);
-        this->chain = chain;
+            KDL::Chain chain;
+            tree.getChain("iiwa_link_0", "tool_link_ee", chain);
+            this->chain = chain;
 
-        ROS_INFO("Initializing IKPoseSolver service...");
-        this->ikPoseService = node->advertiseService("/table_tennis/ik/position", &IKSolver::solveIKPose, this);
+            ROS_INFO("Initializing IKPoseSolver service...");
+            this->ikPoseService = node->advertiseService("/table_tennis/ik/position", &IKSolver::solveIKPose, this);
 
-        ROS_INFO("Initializing IKVelocitySolver service...");
-        this->ikVelocityService = node->advertiseService("/table_tennis/ik/velocity", &IKSolver::solveIKVel, this);
+            ROS_INFO("Initializing IKVelocitySolver service...");
+            this->ikVelocityService = node->advertiseService("/table_tennis/ik/velocity", &IKSolver::solveIKVel, this);
 
-        ROS_INFO("Ready.");
-    }
+            ROS_INFO("Initializing FKPoseSolver service...");
+            this->fkPoseService = node->advertiseService("/table_tennis/fk/pose", &IKSolver::solveFKPose, this);
 
-    bool solveIKPose(table_tennis::SolveIKPoseRequest &req,
-                     table_tennis::SolveIKPoseResponse &res)
-    {
-        try
+            ROS_INFO("Ready.");
+        }
+
+        ~IKSolver()
+        {
+            this->node->shutdown();
+        }
+
+        bool solveIKPose(table_tennis::SolveIKPoseRequest &req,
+                         table_tennis::SolveIKPoseResponse &res)
         {
             ROS_INFO("Solving IK Pose...");
 
@@ -55,13 +63,13 @@ public:
 
             KDL::JntArray jntSol = KDL::JntArray(7);
             ROS_INFO("[%f, %f, %f]; [[%f, %f, %f], [%f, %f, %f], [%f, %f, %f]]",
-                targetpos.data[0], targetpos.data[1], targetpos.data[2],
-                rotx.data[0], roty.data[0], rotz.data[0], 
-                rotx.data[1], roty.data[1], rotz.data[1],
-                rotx.data[2], roty.data[2], rotz.data[2]);
+                        targetpos.data[0], targetpos.data[1], targetpos.data[2],
+                        rotx.data[0], roty.data[0], rotz.data[0],
+                        rotx.data[1], roty.data[1], rotz.data[1],
+                        rotx.data[2], roty.data[2], rotz.data[2]);
 
             ROS_INFO("Running solver...");
-            int result = posSolver.CartToJnt(jntArray, targetFrame, jntSol);;
+            int result = posSolver.CartToJnt(jntArray, targetFrame, jntSol);
             ROS_INFO("Result: %d", result);
 
             for (int i = 0; i < jntSol.rows() * jntSol.columns(); i++)
@@ -69,25 +77,16 @@ public:
                 ROS_INFO("%f", jntSol.data[i]);
             }
 
-            std::vector<double> sol (jntSol.data.data(), jntSol.data.data() + jntSol.data.rows() * jntSol.data.cols());
+            std::vector<double> sol(jntSol.data.data(), jntSol.data.data() + jntSol.data.rows() * jntSol.data.cols());
 
             res.solution = sol;
             res.error = result;
 
             return true;
         }
-        catch(const std::exception& e)
-        {
-            ROS_ERROR(e.what());
-            std::cerr << e.what() << '\n';
-            return false;
-        }
-    }
 
-    bool solveIKVel(table_tennis::SolveIKVelocityRequest &req,
-                    table_tennis::SolveIKVelocityResponse &res)
-    {
-        try
+        bool solveIKVel(table_tennis::SolveIKVelocityRequest &req,
+                        table_tennis::SolveIKVelocityResponse &res)
         {
             ROS_INFO("Solving IK Velocity...");
             KDL::ChainIkSolverVel_pinv velSolver(this->chain);
@@ -102,7 +101,8 @@ public:
 
             KDL::JntArray jntSol = KDL::JntArray(7);
 
-            int result = velSolver.CartToJnt(jntArray, targetTwist, jntSol);;
+            int result = velSolver.CartToJnt(jntArray, targetTwist, jntSol);
+            ;
             ROS_INFO("Result: %d", result);
 
             for (int i = 0; i < jntSol.rows() * jntSol.columns(); i++)
@@ -110,31 +110,81 @@ public:
                 ROS_INFO("%f", jntSol.data[i]);
             }
 
-            std::vector<double> sol (jntSol.data.data(), jntSol.data.data() + jntSol.data.rows() * jntSol.data.cols());
+            std::vector<double> sol(jntSol.data.data(), jntSol.data.data() + jntSol.data.rows() * jntSol.data.cols());
 
             res.solution = sol;
             res.error = result;
 
             return true;
         }
-        catch(const std::exception& e)
+
+        bool solveFKPose(table_tennis::SolveFKPoseRequest &req,
+                         table_tennis::SolveFKPoseResponse &res)
         {
-            ROS_ERROR(e.what());
-            std::cerr << e.what() << '\n';
-            return false;
+            ROS_INFO("FK Pose request received.");
+            KDL::ChainFkSolverPos_recursive posSolver(this->chain);
+
+            ROS_INFO("Joint positions:");
+            std::vector<double> jointPositions = req.jointPositions;
+            for (int i = 0; i < jointPositions.size(); ++i)
+            {
+                ROS_INFO("  %f", jointPositions[i]);
+            }
+
+            KDL::JntArray jntArray = KDL::JntArray(7);
+            jntArray.data = Eigen::Map<const Eigen::VectorXd>(jointPositions.data(), jointPositions.size());
+
+            KDL::Frame frame = KDL::Frame();
+
+            int result = posSolver.JntToCart(jntArray, frame);
+            res.error = result;
+
+            std::vector<double> position = std::vector<double> {
+                frame.p.data[0],
+                frame.p.data[1],
+                frame.p.data[2]
+            };
+
+            std::vector<double> rotx = std::vector<double> {
+                frame.M.UnitX().data[0],
+                frame.M.UnitX().data[1],
+                frame.M.UnitX().data[2]
+            };
+            
+            std::vector<double> roty = std::vector<double> {
+                frame.M.UnitY().data[0],
+                frame.M.UnitY().data[1],
+                frame.M.UnitY().data[2]
+            };
+
+            std::vector<double> rotz = std::vector<double> {
+                frame.M.UnitZ().data[0],
+                frame.M.UnitZ().data[1],
+                frame.M.UnitZ().data[2]
+            };
+
+            res.position = position;
+            res.rotx = rotx;
+            res.roty = roty;
+            res.rotz = rotz;
+
+            ROS_INFO("Solved position: {%f, %f, %f}", position[0], position[1], position[2]);
+            ROS_INFO("Solved rotx: {%f, %f, %f}", rotx[0], rotx[1], rotx[2]);
+            ROS_INFO("Solved roty: {%f, %f, %f}", roty[0], roty[1], roty[2]);
+            ROS_INFO("Solved rotz: {%f, %f, %f}", rotz[0], rotz[1], rotz[2]);
+
+            return true;
         }
-    }
 
-private:
-    ros::NodeHandle* node;
-    ros::ServiceServer ikPoseService;
-    ros::ServiceServer ikVelocityService;
+    private:
+        ros::NodeHandle *node;
+        ros::ServiceServer ikPoseService;
+        ros::ServiceServer ikVelocityService;
+        ros::ServiceServer fkPoseService;
 
-    KDL::Chain chain;
-};
-}
-
-
+        KDL::Chain chain;
+    };
+} // namespace table_tennis
 
 int main(int argc, char **argv)
 {

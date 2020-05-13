@@ -67,4 +67,5 @@ int main(int argc, char **argv)
         ROS_INFO("Failed to send request.");
     }
     
+    node.shutdown();
 }

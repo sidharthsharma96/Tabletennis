@@ -25,9 +25,9 @@ def main():
 
     rospy.loginfo("Connection succeeded.")
 
-    x = 2.069104
+    x = 0.4
     y = 0.037088
-    z = -0.124427
+    z = 1
     vx = 0
     vy = 0
     vz = 0

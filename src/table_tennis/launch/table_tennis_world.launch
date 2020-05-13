@@ -10,12 +10,7 @@
     <arg name="robot_name" default="iiwa" />
     <arg name="model" default="iiwa7"/>
     <arg name="trajectory" default="true"/>
-    <arg name="rviz" default="false" />
-
-    <remap from="/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory" 
-           to="/$(arg robot_name)/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory" />
-    <remap from="robot_description" to="/$(arg robot_name)/robot_description" /> 
-    <remap from="/get_planning_scene" to="/$(arg robot_name)/get_planning_scene" /> 
+    <arg name="rviz" default="false" /> 
 
     <!-- Load up table tennis world -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">	    
@@ -28,7 +23,7 @@
 	</include>
 
     <!-- Load the URDF with the given hardware interface into the ROS Parameter Server -->
-    <include file="$(find iiwa_description)/launch/$(arg model)_upload.launch">
+    <include file="$(find iiwa_tool_description)/launch/$(arg model)_tool_upload.launch">
         <arg name="hardware_interface" value="$(arg hardware_interface)"/>
         <arg name="robot_name" value="$(arg robot_name)" />
     </include>

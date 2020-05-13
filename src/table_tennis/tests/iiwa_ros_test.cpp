@@ -178,4 +178,5 @@ int main(int argc, char **argv)
     //KDL::ChainIkSolverVel_pinv slv = KDL::ChainIkSolverVel_pinv();
 
     //int succ = KDL::ChainIkSolverVel::CartToJnt(jntposin, twist, jntposout);
+
 }

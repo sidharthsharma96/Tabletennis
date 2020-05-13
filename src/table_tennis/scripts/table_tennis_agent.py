@@ -156,7 +156,7 @@ class TableTennisAgent():
             rospy.loginfo("Return Position relative to robot: " + str(p0))
 
             # Check if robot can reach without colliding with table
-            if (z <= 1.44):
+            if (z <= 1):
                rospy.logerr("Can't reach ball, quitting.")
                return CommandAgentResponse(False) 
 
@@ -174,6 +174,9 @@ class TableTennisAgent():
 
             rospy.loginfo("Points are valid.")
             prepTime = self.estimateTime(self.getCurrentPoint(), point1)
+
+            if (prepTime > t):
+                prepTime = t - 0.25
 
             point1.time_from_start = rospy.Duration(prepTime)
             point2.time_from_start = rospy.Duration(t)
@@ -258,7 +261,7 @@ class TableTennisAgent():
             y = y0 + vy0*t
 
             if (bounce):
-                z = table + vzb*tb + 0.5*g*t**2
+                z = table + vzb*tb + 0.5*g*tb**2
                 tb += dt
                 vz = vzb + g*t
             else:
@@ -272,9 +275,9 @@ class TableTennisAgent():
                 vzb = vz
                 tb = 0
                 bounce = True
-            elif (r <= self.robotReach and z >= 1.44):
+            elif (r <= self.robotReach):
                 break
-            elif (z <= table and bounce):
+            elif (z <= table - 0.1 and bounce):
                 break
 
             t += dt
