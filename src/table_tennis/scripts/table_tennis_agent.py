@@ -98,7 +98,7 @@ class TableTennisAgent():
         ]
 
         self.robotOrigin = np.array([[-1.5], [0], [0.84]])
-        self.robotReach = 0.8
+        self.robotReach = 0.7
         self.robotState = 0
         self.jointState = JointState()
 

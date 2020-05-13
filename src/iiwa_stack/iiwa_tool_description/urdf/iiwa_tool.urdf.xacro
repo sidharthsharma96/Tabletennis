@@ -20,23 +20,6 @@
   
   <link name="world"/> 
   
-<!--
-  <link name="world">
-    <visual>
-      <origin xyz="0 0 0.42" rpy="0 0 0"/>
-      <geometry>
-	<box size="0.68 0.605 0.84"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0.42" rpy="0 0 0"/>
-      <geometry>
-	<box size="0.68 0.605 0.84"/>
-      </geometry>
-    </collision>
-  </link>
--->
-  
   <gazebo reference="world">
     <static>true</static>
   </gazebo>
@@ -55,29 +38,25 @@
   There is no offset between the two, that means the tool is attached at the robot flange. -->
   <joint name="tool_joint" type="fixed">
     <parent link="iiwa_link_ee" />
-    <child link = "tool_link" />
-    <origin xyz="${tool_joint_offset}" rpy="0 ${PI/2.0} 0" />  
+    <child link = "tool_link" />  
+    <origin xyz="${tool_joint_offset}" rpy="0 0 -${PI/2.0}" />  
   </joint>
   
   <!-- Here we define the geometry of the tool. We designed the tool ourselves, so we have a mesh file that represents it.   
   Else, one can define it using a geometric representation that approximate it, like a cylinder (see commented lines) -->
   <link name="tool_link">
     <visual>
-      <origin xyz="0 0 0" rpy="${PI/2.0} 0 -${PI/2.0}"/>
-      <geometry>
-	    <mesh filename="package://iiwa_tool_description/meshes/visual/racket.dae"/>
-	<!-- 	<cylinder length="0.1275" radius="0.020"/> -->
-      </geometry>
-      <material name="Grey"/>
-    </visual>
-
-    <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-	   <mesh filename="package://iiwa_tool_description/meshes/visual/racket.dae"/>
-	<!-- 	<cylinder length="0.1275" radius="0.020"/> -->
+    	<mesh filename="package://iiwa_tool_description/meshes/visual/racket.dae"/>
       </geometry>
-      <material name="Grey"/>
+    </visual>
+
+    <collision name="racket_collision">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://iiwa_tool_description/meshes/visual/racket.dae"/>
+      </geometry>
     </collision>
   </link>
   
