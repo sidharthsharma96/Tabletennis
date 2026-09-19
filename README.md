@@ -1,6 +1,16 @@
 # Tabletennis
 A simulation of the Kuka iiwa 7 robot playing table tennis. The simulation is run in ROS and Gazebo.
 
+# Overview
+The project is a ROS1 (Kinetic) / Gazebo workspace with two main pieces under `src/`:
+- `iiwa_stack` - the vendored KUKA iiwa ROS driver/description/MoveIt config used to simulate and control the arm.
+- `table_tennis` - the project's own package:
+  - `plugins/ball_plugin.cc` - a Gazebo model plugin that publishes the ball's pose/velocity and lets it be set externally.
+  - `plugins/training_return_plugin.cc` - a Gazebo world plugin that randomizes ball launches and target landing spots, tracks net/table/floor contacts, and exposes ROS services (`reset`, `step`, `state`, `demo`) for driving an episode.
+  - `scripts/ik_solver.cpp` - KDL-based inverse/forward kinematics services for the iiwa arm.
+  - `scripts/table_tennis_agent.py` - subscribes to ball state, estimates an intercept point, and commands a joint trajectory to return the ball.
+  - `nn/` - a small PyTorch model (`action_net.pt` / `dqn.py`) intended to choose the paddle's return velocity and orientation.
+
 # Dependencies
 In order to run the simulation, you must have ROS Kinetic installed.
 You can install it following the instructions [here](http://wiki.ros.org/kinetic/Installation).
@@ -46,9 +56,13 @@ This will launch RViz as well, letting you plan paths using its gui.
 
 ## Move the robot incrementally in Operational Space
 Run this command:
-- rosrun table_tennis trajevtory_test.py _dx:=x _dy:=y _dz:=z
+- rosrun table_tennis trajectory_test.py _dx:=x _dy:=y _dz:=z
 
 replacing x,y,z with relative distances to move the end-effector in operational space.
+
+# Known limitations
+- The reinforcement-learning training loop in `training_return_plugin.cc` (`reset`/`step` services) has parts of its world-reset logic commented out, so it isn't fully wired up for training runs.
+- The trained network's predicted paddle velocity/orientation is currently overridden with hardcoded values in `table_tennis_agent.py`, so `nn/action_net.pt` isn't actually driving the return shot yet.
 
 # Troubleshooting
 
